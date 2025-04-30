@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 public class Table {
     private String tableName;
     private String alias;
+    private Query query;
 }

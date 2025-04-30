@@ -1,0 +1,337 @@
+[
+  {
+    "name": "Enumeration of sample fields explicitly (with aliases) or *",
+    "input": "SELECT id as id_alias, name as name_alias FROM author a",
+    "expected": {
+      "columns": [
+        {
+          "name": "id",
+          "alias": "id_alias"
+        },
+        {
+          "name": "name",
+          "alias": "name_alias"
+        }
+      ],
+      "fromSources": [
+        {
+          "tableName": "author",
+          "alias": "a"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Implicit join of several tables (select * from A,B,C)",
+    "input": "SELECT * FROM author,book",
+    "expected": {
+      "columns": [
+        {
+          "name": "*",
+          "alias": null
+        }
+      ],
+      "fromSources": [
+        {
+          "tableName": "author",
+          "alias": null
+        },
+        {
+          "tableName": "book",
+          "alias": null
+        }
+      ]
+    }
+  },
+  {
+    "name": "Explicit join of tables (inner, left, right, full join)",
+    "input": "SELECT * FROM users u INNER JOIN orders o ON u.id = o.user_id",
+    "expected": {
+      "columns": [
+        {
+          "name": "*",
+          "alias": null
+        }
+      ],
+      "fromSources": [
+        {
+          "tableName": "users",
+          "alias": "u"
+        }
+      ],
+      "joins": [
+        {
+          "type": "INNER",
+          "source": {
+            "tableName": "users",
+            "alias": "u"
+          },
+          "target": {
+            "tableName": "orders",
+            "alias": "o"
+          },
+          "on": {
+            "expression": "u.id = o.user_id"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "Filter conditions (where a = 1 and b > 100)",
+    "input": "SELECT * FROM products WHERE category = 'electronics' AND price > 100",
+    "expected": {
+      "columns": [
+        {
+          "name": "*",
+          "alias": null
+        }
+      ],
+      "fromSources": [
+        {
+          "tableName": "products",
+          "alias": null
+        }
+      ],
+      "where": {
+        "root": {
+          "operator": "AND",
+          "children": [
+            {
+              "operator": "NONE",
+              "children": null,
+              "condition": {
+                "expression": "category = 'electronics'"
+              }
+            },
+            {
+              "operator": "NONE",
+              "children": null,
+              "condition": {
+                "expression": "price > 100"
+              }
+            }
+          ],
+          "condition": null
+        }
+      }
+    }
+  },
+  {
+    "name": "Subqueries (select * from (select * from A) a_alias)",
+    "input": "select * from (select * from A) a_alias",
+    "expected": {
+      "columns": [
+        {
+          "name": "*",
+          "alias": null
+        }
+      ],
+      "fromSources": [
+        {
+          "tableName": null,
+          "alias": "a_alias",
+          "query": {
+            "columns":[
+              {
+                "name": "*",
+                "alias": null
+              }
+            ],
+            "fromSources": [
+              {
+                "tableName": "A"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "Grouping by one or several fields (group by)",
+    "input": "SELECT count (*), category, size FROM apparel GROUP BY category, size having size = 'M'",
+    "expected": {
+      "columns": [
+        {
+          "name": "count (*)",
+          "alias": null
+        },
+        {
+          "name": "category",
+          "alias": null
+        },
+        {
+          "name": "size",
+          "alias": null
+        }
+      ],
+      "fromSources": [
+        {
+          "tableName": "apparel",
+          "alias": null
+        }
+      ],
+      "groupBy": {
+        "columns": [
+          {
+            "name": "category",
+            "alias": null
+          },
+          {
+            "name": "size",
+            "alias": null
+          }
+        ],
+        "having": {
+          "conditionNode": {
+            "operator": "NONE",
+            "condition": {
+              "expression": "size = 'M'"
+            },
+            "children": null
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "Sorting by one or more fields (order by)",
+    "input": "SELECT id FROM t ORDER BY price DESC",
+    "expected": {
+      "columns": [
+        {
+          "name": "id",
+          "alias": null
+        }
+      ],
+      "fromSources": [
+        {
+          "tableName": "t",
+          "alias": null
+        }
+      ],
+      "sortColumns": [
+        {
+          "column": {
+            "name": "price",
+            "alias": null
+          },
+          "sortType": "DESC"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Selection truncation (limit, offset)",
+    "input": "SELECT id FROM t OFFSET 10 LIMIT 5",
+    "expected": {
+      "columns": [
+        {
+          "name": "id",
+          "alias": null
+        }
+      ],
+      "fromSources": [
+        {
+          "tableName": "t",
+          "alias": null
+        }
+      ],
+      "offset": 10,
+      "limit": 5
+    }
+  },
+  {
+    "name": "name XYY",
+    "input": "SELECT t.id FROM table t OFFSET 10",
+    "expected": {
+      "columns": [
+        {
+          "name": "t.id",
+          "alias": null
+        }
+      ],
+      "fromSources": [
+        {
+          "tableName": "table",
+          "alias": "t"
+        }
+      ],
+      "offset": 10
+    }
+  },
+  {
+    "name": "LightSpeed GitHub example",
+    "input": "SELECT a.name, count(book.id), sum(book.cost) FROM author a LEFT JOIN book b ON (a.id = b.author_id) GROUP BY a.name HAVING COUNT(*) > 1 AND SUM(b.cost) > 500 LIMIT 10",
+    "expected": {
+      "columns": [
+        {
+          "name": "a.name",
+          "alias": null
+        },
+        {
+          "name": "count(book.id)",
+          "alias": null
+        },
+        {
+          "name": "sum(book.cost)",
+          "alias": null
+        }
+      ],
+      "fromSources": [
+        {
+          "tableName": "author",
+          "alias": "a"
+        }
+      ],
+      "joins": [
+        {
+          "type": "LEFT",
+          "source": {
+            "tableName": "author",
+            "alias": "a"
+          },
+          "target": {
+            "tableName": "book",
+            "alias": "b"
+          },
+          "on": {
+            "expression": "a.id = b.author_id"
+          }
+        }
+      ],
+      "groupBy": {
+        "columns": [
+          {
+            "name": "a.name",
+            "alias": null
+          }
+        ],
+        "having": {
+          "conditionNode": {
+            "operator": "AND",
+            "condition": null,
+            "children": [
+              {
+                "operator": "NONE",
+                "condition": {
+                  "expression": "COUNT(*) > 1"
+                },
+                "children": null
+              },
+              {
+                "operator": "NONE",
+                "condition": {
+                  "expression": "SUM(b.cost) > 500"
+                },
+                "children": null
+              }
+            ]
+          }
+        }
+      },
+      "limit": 10
+    }
+  }
+]

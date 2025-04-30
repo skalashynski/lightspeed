@@ -12,7 +12,7 @@ public class Query {
     private List<Table> fromSources = new ArrayList<>();
     private List<Join> joins = new ArrayList<>();
     private Where where;
-    private List<GroupBy> groupByColumns = new ArrayList<>();
+    private GroupBy groupBy;
     private List<Sort> sortColumns = new ArrayList<>();
     private Integer limit;
     private Integer offset;
