@@ -34,7 +34,7 @@ Supports nested subqueries, joins, and common clauses like `WHERE`, `GROUP BY`, 
 
 ### Requirements
 
-- Java 17+
+- Java 21
 - Maven
 
 ### Build
