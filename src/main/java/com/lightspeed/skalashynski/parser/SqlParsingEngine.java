@@ -18,7 +18,31 @@ public class SqlParsingEngine {
             new OffsetClauseParser()
     );
 
+    public static boolean isValidSql(String sql) {
+        if (sql == null || sql.isBlank()) return false;
+
+        String normalized = sql.trim().toUpperCase();
+
+        if (!normalized.startsWith("SELECT") || !normalized.contains("FROM")) {
+            return false;
+        }
+
+        int parenDepth = 0;
+        for (char c : sql.toCharArray()) {
+            if (c == '(') parenDepth++;
+            if (c == ')') parenDepth--;
+            if (parenDepth < 0) return false;
+        }
+
+        return parenDepth == 0;
+    }
+
+
     public static Query parse(String sql) {
+        if (!isValidSql(sql)) {
+            throw new IllegalArgumentException("Invalid SQL syntax: " + sql);
+        }
+
         sql = normalize(sql);
         List<String> clauses = splitClauses(sql);
         List<ParserBinding> bindings = bindParsers(clauses);
